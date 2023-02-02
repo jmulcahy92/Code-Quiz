@@ -65,6 +65,7 @@ scorePage.style.visibility = "hidden";
 highscoresPage.style.visibility = "hidden";
 
 var timerEl = document.querySelector(".timer"); // saves location of timer element
+
 var startButton = document.querySelector(".start-button"); // saves location of start button
 var answerButtons = document.querySelector(".quiz-page"); // saves location of answer buttons' PARENT
 var submitScoreButton = document.querySelector(".submit-score-button"); // saves location of submit score button
@@ -115,10 +116,12 @@ function startQuiz() { // function to start quiz, called by click event on start
         }
     }, 1000); // run above function every 1000 milliseconds
 
-    getQuestion(0); // load first question
+    questionIndex = 0
+
+    getQuestion(questionIndex); // load first question
 }
 
-function getQuestion(n) {
+function getQuestion(n) { // function for populating questions
     questionEl = document.querySelector(".quiz-page").children[0]; //saves location of question element
     questionEl.textContent = questions[n].question; // populates nth question
 
@@ -128,7 +131,7 @@ function getQuestion(n) {
     }
 }
 
-function endQuiz() {
+function endQuiz() { // function for ending quiz
     clearInterval(timerId); // stops countdown timer
     timerEl.textContent = "Time: " + timerVal; // displays final timer/score in corner
 
@@ -139,53 +142,52 @@ function endQuiz() {
     finalScoreMessage.textContent = "Your final score is " + timerVal; // display message with score (timerVal)
 }
 
-function saveScore(event) {
-    event.preventDefault();
+function saveScore() { // function for saving score
+    var initials = document.querySelector(".initials").value; // saves player initials form input to variable
+    
+    if (initials == "") {
+        alert("Please provide initials!")
+    } else{
+        scorePage.style.visibility = "hidden";
+        highscoresPage.style.visibility = "visible";
 
-    scorePage.style.visibility = "hidden";
-    highscoresPage.style.visibility = "visible";
+        var player = { // player object
+            playerName: initials,
+            playerScore: timerVal
+        };
 
-    var initials = document.querySelector(".initials").value;
+        if (localStorage.getItem("highscores") === null || localStorage.getItem("highscores") === "cleared") {
+            var storedHighscores = [player];
+        } else {
+            var storedHighscores = JSON.parse(localStorage.getItem("highscores"));
 
-    var player = {
-        playerName: initials,
-        playerScore: timerVal
-    };
+            storedHighscores.push(player);
+        }
 
-    if (localStorage.getItem("highscores") == null) {
-        var storedHighscores = [player];
-    } else {
-        var storedHighscores = JSON.parse(localStorage.getItem("highscores"));
+        localStorage.setItem("highscores", JSON.stringify(storedHighscores));
 
         for (i=0; i<storedHighscores.length; i++) {
-            if(player.playerScore > storedHighscores[i].playerScore) {
-                storedHighscores.splice(i, 0, player);
-            }
+            var li = document.createElement("li");
+            li.textContent = storedHighscores[i].playerName + ": " + storedHighscores[i].playerScore;
+            highscoresPage.children[1].appendChild(li);
         }
-    }
-
-    localStorage.setItem("highscores", JSON.stringify(storedHighscores));
-
-    for (i=0; i<storedHighscores.length; i++) {
-        var li = document.createElement("li");
-        li.textContent = storedHighscores[i].playerName + ": " + storedHighscores[i].playerScore;
-        highscoresPage.children[1].appendChild(li);
     }
 }
 
 function goBack() {
     highscoresPage.style.visibility = "hidden";
+
+    var scoresList = document.querySelector(".scores-list");
+    scoresList.innerHTML = "";
+
     startPage.style.visibility = "visible";
 }
 
 function clearHighscores() {
-    localStorage.setItem("highscores", "");
-    liArray = document.querySelectorAll("li");
-    liNum = liArray.length;
-
-    for (i=0; i<liNum; i++) {
-        liArray[0].remove();
-    }
+    localStorage.setItem("highscores", "cleared");
+    
+    var scoresList = document.querySelector(".scores-list");
+    scoresList.innerHTML = "";
 }
 
 

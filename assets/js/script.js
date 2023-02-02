@@ -1,81 +1,27 @@
-// user is presented with a title page
-    // highscores link in top left (initially no scores saved)
-    // timer in top right (initially set to 0)
-    // "start quiz" button with "click" event listener
-        // changes html to display first question, starts timer at... let's say 60
+var startPage = document.querySelector(".start-page"); // start page elements
+var quizPage = document.querySelector(".quiz-page"); // quiz page elements
+var scorePage = document.querySelector(".score-page"); // final score page elements
+var highscoresPage = document.querySelector(".highscores-page"); // highscores page elements
 
-// question page!
-    // question in header, answers on list of buttons, timer in top right decrementing
-        // all buttons ("click" event listeners) move on to next question, but wrong answers also subtract... let's say 10 from timer
-        // buttons also display a "correct" or "wrong" message in html below answers for a couple seconds (another timer?)
-        // after 5 questions, stop timer and display end page
-
-// end page!
-    // "Your final score is [timer value]"
-    // form for entering initials with a submit button
-        // preventDefault on form to keep it from refreshing page
-        // "click" event listener on button that saves initials plus score to local storage AND moves to high score screen
-
-// high scores page!
-    // ordered list of initials plus scores, from highest score to lowest
-    // "go back" button returns user to title page ("click" event listener)
-    // no more highscore link in top left! no more timer in top right!
-    // "Clear Highscores" button (optional)
-
-
-    //click button to start
-    //event listener
-    //a timer will start
-//user is presented with a question
-//user selects one multiple choice question
-    //IF answer is wrong, decrement the timer
-        //Display that the user choice was incorrect, then move to next question
-    //IF answer is correct
-        //Display that the user choice was correct(textContent)
-        //Increment the score++
-    //FOR loop to loop through the questions array
-//When timer hits 0 OR no more questions in array
-    //THEN clear interval
-    //THEN allow user to input initials
-    //THEN link to highscores page(two separate HTML pages, index.html and hiscores.html)
-    //Save data to local storage(setItem, getItem)
-
-//startQuiz() function changes content
-    //hide the start screen
-    //unhide the questions section
-    //start the timer
-    //show the starting time
-    //call getQuestion()
-//getQuestion() function get current question object from questions array
-    //change content of the page
-    //getElementbyId, change textContent
-    //loop over choices create a button for each choice
-    //after creating all the elements we appendChild
-//questionClick() function that checks choice user clicked
-    //first we check that the event.target matches an answer choice
-    //check event.target.value matches the questions[currentIndex].answer
-
-var startPage = document.querySelector(".start-page");
-var quizPage = document.querySelector(".quiz-page");
-var scorePage = document.querySelector(".score-page");
-var highscoresPage = document.querySelector(".highscores-page");
-
+// hide non-start-page elements to begin
 quizPage.style.visibility = "hidden";
 scorePage.style.visibility = "hidden";
 highscoresPage.style.visibility = "hidden";
 
-var timerEl = document.querySelector(".timer"); // saves location of timer element
+var timerEl = document.querySelector(".timer"); // timer element
 
-var startButton = document.querySelector(".start-button"); // saves location of start button
-var answerButtons = document.querySelector(".quiz-page"); // saves location of answer buttons' PARENT
-var submitScoreButton = document.querySelector(".submit-score-button"); // saves location of submit score button
-var goBackButton = document.querySelector(".go-back-button");
-var clearHighscoresButton = document.querySelector(".clear-highscores-button");
+var startButton = document.querySelector(".start-button"); // start button
+var answerButtons = document.querySelector(".quiz-page"); // PARENT of answer buttons
+var submitScoreButton = document.querySelector(".submit-score-button"); // submit score button
+var goBackButton = document.querySelector(".go-back-button"); // go back button
+var clearHighscoresButton = document.querySelector(".clear-highscores-button"); // clear scores button
 
 var timerId = 0; // declare timerId globally so we can use clearInterval anywhere
 var timerVal = 0; // declare timerVal globally so we can adjust it anywhere
 var questionIndex = 0; // declare questionIndex globally so we can increment it every time we answer a question; start at 0 to start with first question
-var questions = [ //array of question objects with question, choices, and correct answer in strings
+
+//array of question objects with question, choices, and correct answer in strings
+var questions = [
     {
         question: "Commonly used data types DO NOT include:",
         choices: ["strings", "booleans", "alerts", "numbers"],
@@ -103,9 +49,10 @@ var questions = [ //array of question objects with question, choices, and correc
     }
 ];
 
-function startQuiz() { // function to start quiz, called by click event on start button
-    startPage.style.visibility = "hidden";
-    quizPage.style.visibility = "visible";
+// function to start quiz, called by click event on start button
+function startQuiz() {
+    startPage.style.visibility = "hidden"; // hide start page
+    quizPage.style.visibility = "visible"; // show quiz page
     
     timerVal = 60; // give players 1 minute
     timerId = setInterval(function(){ // begin countdown and save id
@@ -116,12 +63,13 @@ function startQuiz() { // function to start quiz, called by click event on start
         }
     }, 1000); // run above function every 1000 milliseconds
 
-    questionIndex = 0
+    questionIndex = 0 // reset to 0 for attempts after the first
 
     getQuestion(questionIndex); // load first question
 }
 
-function getQuestion(n) { // function for populating questions
+// function for populating questions
+function getQuestion(n) {
     questionEl = document.querySelector(".quiz-page").children[0]; //saves location of question element
     questionEl.textContent = questions[n].question; // populates nth question
 
@@ -131,41 +79,44 @@ function getQuestion(n) { // function for populating questions
     }
 }
 
-function endQuiz() { // function for ending quiz
+// function for ending quiz
+function endQuiz() {
     clearInterval(timerId); // stops countdown timer
     timerEl.textContent = "Time: " + timerVal; // displays final timer/score in corner
 
-    quizPage.style.visibility = "hidden";
-    scorePage.style.visibility = "visible";
+    quizPage.style.visibility = "hidden"; // hide quiz page
+    scorePage.style.visibility = "visible"; // show final score page
 
     var finalScoreMessage = document.querySelector(".final-score-message"); // saves location of final score message
     finalScoreMessage.textContent = "Your final score is " + timerVal; // display message with score (timerVal)
 }
 
-function saveScore() { // function for saving score
-    var initials = document.querySelector(".initials").value; // saves player initials form input to variable
+// function for saving score
+function saveScore() {
+    var initials = document.querySelector(".initials").value; // saves input from initials form to variable
     
-    if (initials == "") {
-        alert("Please provide initials!")
-    } else{
-        scorePage.style.visibility = "hidden";
-        highscoresPage.style.visibility = "visible";
+    if (initials == "") { // if player leaves initials field blank...
+        alert("Please provide initials!") // alert them that they should provide something
+    } else{ // otherwise...
+        scorePage.style.visibility = "hidden"; // hide final score page
+        highscoresPage.style.visibility = "visible"; //show highscores page
 
-        var player = { // player object
+        // player object storing initials and score
+        var player = {
             playerName: initials,
             playerScore: timerVal
         };
 
-        if (localStorage.getItem("highscores") === null || localStorage.getItem("highscores") === "cleared") {
-            var storedHighscores = [player];
-        } else {
-            var storedHighscores = JSON.parse(localStorage.getItem("highscores"));
-
-            storedHighscores.push(player);
+        if (localStorage.getItem("highscores") === null || localStorage.getItem("highscores") === "cleared") { //if no scores saved locally yet
+            var storedHighscores = [player]; // just save the one score
+        } else { // otherwise
+            var storedHighscores = JSON.parse(localStorage.getItem("highscores")); // create array of existing saved scores
+            storedHighscores.push(player); // push new score onto end; may be able to sort by score using splice()?
         }
 
-        localStorage.setItem("highscores", JSON.stringify(storedHighscores));
+        localStorage.setItem("highscores", JSON.stringify(storedHighscores)); // stringifies scores and saves them to local storage
 
+        // loop over array of scores and create/append a new li for each
         for (i=0; i<storedHighscores.length; i++) {
             var li = document.createElement("li");
             li.textContent = storedHighscores[i].playerName + ": " + storedHighscores[i].playerScore;
@@ -174,25 +125,25 @@ function saveScore() { // function for saving score
     }
 }
 
+// function for returning to start page
 function goBack() {
-    highscoresPage.style.visibility = "hidden";
+    highscoresPage.style.visibility = "hidden"; // hide highscores page
 
     var scoresList = document.querySelector(".scores-list");
-    scoresList.innerHTML = "";
+    scoresList.innerHTML = ""; // remove all scores from highscores list so that it's clean on repeat attempts
 
-    startPage.style.visibility = "visible";
+    startPage.style.visibility = "visible"; // show start page again
 }
 
+// clears saved scores from local storage and html
 function clearHighscores() {
-    localStorage.setItem("highscores", "cleared");
+    localStorage.setItem("highscores", "cleared"); // clears local storage
     
     var scoresList = document.querySelector(".scores-list");
-    scoresList.innerHTML = "";
+    scoresList.innerHTML = ""; // clears html elements
 }
 
-
 startButton.addEventListener("click", startQuiz); // click event listener for start button
-
 answerButtons.addEventListener("click", function(event) { // click event listener for quiz answer buttons
     var element = event.target;
 
@@ -215,9 +166,6 @@ answerButtons.addEventListener("click", function(event) { // click event listene
         }
     }
 });
-
 submitScoreButton.addEventListener("click", saveScore); // click event listener for score submit button
-
-goBackButton.addEventListener("click", goBack);
-
-clearHighscoresButton.addEventListener("click", clearHighscores);
+goBackButton.addEventListener("click", goBack); // click event listener for go back button
+clearHighscoresButton.addEventListener("click", clearHighscores); // click event listener for clear highscores button

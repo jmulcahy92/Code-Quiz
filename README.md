@@ -2,15 +2,15 @@
 
 ## Description
 
-placeholder
+A dynamic short multiple choice quiz on basic html, css, and javascript. Scores player based on time remaining and number of correct answers. Allows player to save scores locally as well as clear saved scores.
 
 ## Link
 
-placeholder
+https://jmulcahy92.github.io/Code-Quiz/
 
 ## Screenshot
 
-![Screenshot of Code Quiz webpage](./assets/images/04-web-apis-homework-demo.gif)
+![GIF of Code Quiz webpage](./assets/images/04-web-apis-homework-demo.gif)
 
 ## Installation
 

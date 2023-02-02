@@ -14,27 +14,31 @@
             <a href="">View Highscores</a>
         </section>
         <section class="timer">
+            Time: 0
         </section>
     </header>
     <main class="start-page">
         <h1>Coding Quiz Challenge</h1>
         <section>
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. In velit possimus minus eveniet unde, magnam quam natus reprehenderit quae ullam culpa cupiditate ut corrupti fugit architecto tempore beatae itaque ipsam!
+            Try to answer the following code-related questions within the time limit. Keep in mind that incorrect answers will penalize your score/time by ten seconds!
         </section>
         <button class="start-button">Start Quiz</button>
     </main>
     <main class="quiz-page">
-        <h2>Q</h2>
-        <button>A1</button>
-        <button>A2</button>
-        <button>A3</button>
-        <button>A4</button>
+        <h2></h2>
+        <button></button>
+        <button></button>
+        <button></button>
+        <button></button>
     </main>
     <main class="score-page">
         <h3>All done!</h3>
-        <p></p>
+        <p class="final-score-message"></p>
         <section>
-            <form action=""></form>
+            <form method="POST">
+                <label for="initials-text">Enter Initials: </label>
+                <input type="text" class="initials" placeholder="ABC" name="initials-text"/>
+            </form>
             <button class="submit-score-button">Submit</button>
         </section>
     </main>

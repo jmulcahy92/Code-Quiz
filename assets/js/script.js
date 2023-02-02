@@ -64,10 +64,17 @@ quizPage.style.visibility = "hidden";
 scorePage.style.visibility = "hidden";
 highscoresPage.style.visibility = "hidden";
 
-var startButton = document.querySelector(".start-button");
-var timerEl = document.querySelector(".timer");
+var timerEl = document.querySelector(".timer"); // saves location of timer element
+var startButton = document.querySelector(".start-button"); // saves location of start button
+var answerButtons = document.querySelector(".quiz-page"); // saves location of answer buttons' PARENT
+var submitScoreButton = document.querySelector(".submit-score-button"); // saves location of submit score button
+var goBackButton = document.querySelector(".go-back-button");
+var clearHighscoresButton = document.querySelector(".clear-highscores-button");
 
-var questions = [
+var timerId = 0; // declare timerId globally so we can use clearInterval anywhere
+var timerVal = 0; // declare timerVal globally so we can adjust it anywhere
+var questionIndex = 0; // declare questionIndex globally so we can increment it every time we answer a question; start at 0 to start with first question
+var questions = [ //array of question objects with question, choices, and correct answer in strings
     {
         question: "Commonly used data types DO NOT include:",
         choices: ["strings", "booleans", "alerts", "numbers"],
@@ -95,35 +102,120 @@ var questions = [
     }
 ];
 
-timerEl.textContent = "Time: 0"
-
-function startQuiz() {
+function startQuiz() { // function to start quiz, called by click event on start button
     startPage.style.visibility = "hidden";
     quizPage.style.visibility = "visible";
     
-    timerVal = 60;
-    timer = setInterval(function(){
-        timerEl.textContent = "Time: " + timerVal;
-        timerVal --;
-        if (timerVal <= 0) {
-            clearInterval(timer);
-            endQuiz();
+    timerVal = 60; // give players 1 minute
+    timerId = setInterval(function(){ // begin countdown and save id
+        timerVal --; // decrement timer
+        timerEl.textContent = "Time: " + timerVal; // display timer
+        if (timerVal <= 0) { // negative values possible thanks to penalty for wrong answers!!
+            endQuiz(); // ends quiz
         }
-    }, 1000);
+    }, 1000); // run above function every 1000 milliseconds
 
-    getQuestion();
+    getQuestion(0); // load first question
 }
 
-function getQuestion() {
-    questionEl = querySelector(".")
+function getQuestion(n) {
+    questionEl = document.querySelector(".quiz-page").children[0]; //saves location of question element
+    questionEl.textContent = questions[n].question; // populates nth question
+
+    for(i=1; i<=4; i++) { // four times for four choices
+        answerEl = document.querySelector(".quiz-page").children[i]; // saves location of i-th answer button
+        answerEl.textContent = questions[n].choices[i-1]; // populates answer choices
+    }
 }
 
 function endQuiz() {
+    clearInterval(timerId); // stops countdown timer
+    timerEl.textContent = "Time: " + timerVal; // displays final timer/score in corner
+
     quizPage.style.visibility = "hidden";
     scorePage.style.visibility = "visible";
 
-    finalScoreMessage = document.querySelector(".final-score-message");
-    finalScoreMessage.textContent = "Your final score is " + timerVal;
+    var finalScoreMessage = document.querySelector(".final-score-message"); // saves location of final score message
+    finalScoreMessage.textContent = "Your final score is " + timerVal; // display message with score (timerVal)
 }
 
-startButton.addEventListener("click", startQuiz);
+function saveScore(event) {
+    event.preventDefault();
+
+    scorePage.style.visibility = "hidden";
+    highscoresPage.style.visibility = "visible";
+
+    var initials = document.querySelector(".initials").value;
+
+    var player = {
+        playerName: initials,
+        playerScore: timerVal
+    };
+
+    if (localStorage.getItem("highscores") == null) {
+        var storedHighscores = [player];
+    } else {
+        var storedHighscores = JSON.parse(localStorage.getItem("highscores"));
+
+        for (i=0; i<storedHighscores.length; i++) {
+            if(player.playerScore > storedHighscores[i].playerScore) {
+                storedHighscores.splice(i, 0, player);
+            }
+        }
+    }
+
+    localStorage.setItem("highscores", JSON.stringify(storedHighscores));
+
+    for (i=0; i<storedHighscores.length; i++) {
+        var li = document.createElement("li");
+        li.textContent = storedHighscores[i].playerName + ": " + storedHighscores[i].playerScore;
+        highscoresPage.children[1].appendChild(li);
+    }
+}
+
+function goBack() {
+    highscoresPage.style.visibility = "hidden";
+    startPage.style.visibility = "visible";
+}
+
+function clearHighscores() {
+    localStorage.setItem("highscores", "");
+    liArray = document.querySelectorAll("li");
+    liNum = liArray.length;
+
+    for (i=0; i<liNum; i++) {
+        liArray[0].remove();
+    }
+}
+
+
+startButton.addEventListener("click", startQuiz); // click event listener for start button
+
+answerButtons.addEventListener("click", function(event) { // click event listener for quiz answer buttons
+    var element = event.target;
+
+    if (element.matches("button")) { // check that user actually clicked a button
+        var chosenAnswer = element.textContent; // saves string value with chosen answer
+        var correctAnswer = questions[questionIndex].answer; //saves string value of CORRECT answer
+
+        if (chosenAnswer !== correctAnswer) { // if wrong...
+            timerVal -= 10; // incorrect answer penalty
+            // display "Incorrect" message
+        } else { // if right...
+            // display "Correct" message
+        }
+
+        questionIndex++;
+        if (questionIndex < questions.length) { //if there are questions left...
+            getQuestion(questionIndex); // change to next question
+        } else { // if no questions left...
+            endQuiz(); //ends quiz and goes to final score page
+        }
+    }
+});
+
+submitScoreButton.addEventListener("click", saveScore); // click event listener for score submit button
+
+goBackButton.addEventListener("click", goBack);
+
+clearHighscoresButton.addEventListener("click", clearHighscores);
